@@ -1,0 +1,4 @@
+interface:
+  display_name: "Conference Info"
+  short_description: "search and update conference/journal info "
+  default_prompt: "使用 $conference-info 核验我提供的会议信息，并按既有场所数据库字段输出可直接粘贴的记录。"
