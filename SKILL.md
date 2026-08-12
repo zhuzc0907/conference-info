@@ -1,6 +1,6 @@
 ---
 name: conference-info
-description: Research, verify, normalize, and output current information about academic conferences, journals, workshops, and symposia in AI, machine learning, computer science, AI in education, educational data mining, learning analytics, and related fields. Use when the user supplies one or more venue names, acronyms, URLs, CFP snippets, or partial venue details and wants records matching the established 27-field Feishu venue database, a directly pasteable table row, venue information lookup, CFP/deadline verification, or an output file such as XLSX, CSV, TSV, Markdown, or JSON.
+description: Research, verify, normalize, and output current information about academic conferences, journals, workshops, and symposia in AI, machine learning, computer science, AI in education, educational data mining, learning analytics, and related fields. Use when the user supplies one or more venue names, acronyms, URLs, CFP snippets, or partial venue details and wants records matching the established 28-field Feishu venue database, including venue-type-specific ratings, a directly pasteable table row, venue information lookup, CFP/deadline verification, or an output file such as XLSX, CSV, TSV, Markdown, or JSON.
 ---
 
 # Conference Info
@@ -9,7 +9,7 @@ description: Research, verify, normalize, and output current information about a
 
 Convert each user-supplied venue into one normalized record matching the existing venue database. Research current information rather than relying on memory. Preserve uncertainty: leave unavailable fields blank and say what was not confirmed instead of inferring dates, policies, rankings, or fees.
 
-Always read `references/table-schema.md` before researching or producing records. It defines the exact 27-column order, allowed single-select values, date format, identifier rules, and output contract.
+Always read `references/table-schema.md` before researching or producing records. It defines the exact 28-column order, allowed single-select values, date format, identifier rules, rating format, and output contract.
 
 ## 1. Resolve the requested venue
 
@@ -37,6 +37,12 @@ Verify, when applicable:
 
 For journals, verify the official journal and author-guide pages. Leave conference-only fields blank when they do not apply. Do not invent review duration, acceptance rate, impact factor, CCF rank, JCR quartile, CAS partition, APC, or deadlines.
 
+For the `评级` field, use the venue type as the decision rule:
+
+- Conferences and workshops: report the current CCF category only when the venue is present in the current official CCF directory; otherwise write `CCF未收录/待按本单位目录核验`.
+- Journals: report verified CAS major/minor partition, JCR quartile, and latest verified Journal Impact Factor in one concise string, for example `中科院大类2区/小类3区；JCR Q1；IF 10.1`. If a component cannot be verified from an authoritative current source, write `待核验` rather than guessing.
+- Do not treat IF, JCR quartile, CAS partition, or CCF category as interchangeable. Preserve the year/version in the rating string or `备注` when relevant.
+
 ## 3. Normalize the record
 
 Follow the field definitions and exact column order in `references/table-schema.md`.
@@ -51,19 +57,19 @@ Build `记录标题` as `简称｜英文全称`. Build `场所信息引用建议
 
 Assign `场所编号` only when an existing destination table is supplied or accessible and the next unused number can be checked. Otherwise leave it blank; never guess a sequence number. Mention the blank identifier in the chat summary.
 
-Use the generic text `请按投稿当年及本单位采用的最新版目录核验` in `CCF/JCR/中科院分区` unless the user explicitly requests a current ranking check and an authoritative current list is actually verified.
+Use the generic text `请按投稿当年及本单位采用的最新版目录核验` in `CCF/JCR/中科院分区` unless the user explicitly requests a current ranking check and an authoritative current list is actually verified. Put the requested concise, venue-type-specific result in `评级`.
 
 ## 4. Choose the output
 
 Honor an explicitly requested output format.
 
-- **XLSX**: use the spreadsheet skill. Create `场所总表`, `字段与使用说明`, and `飞书单选选项`, matching the established workbook structure and style. Put the researched rows in the exact 27-column schema and preserve typed dates and URLs.
-- **CSV or TSV**: create one flat UTF-8 file containing the 27-column header and one row per venue. Use TSV when the user prioritizes direct pasting into a table.
+- **XLSX**: use the spreadsheet skill. Create `场所总表`, `字段与使用说明`, and `飞书单选选项`, matching the established workbook structure and style. Put the researched rows in the exact 28-column schema and preserve typed dates and URLs.
+- **CSV or TSV**: create one flat UTF-8 file containing the 28-column header and one row per venue. Use TSV when the user prioritizes direct pasting into a table.
 - **Markdown**: create a `.md` file with a concise result summary, sources, and a complete table. Do not drop fields because the table is wide.
-- **JSON**: create a UTF-8 array of objects whose keys exactly match the 27 field names and order.
+- **JSON**: create a UTF-8 array of objects whose keys exactly match the 28 field names and order.
 - **Other requested format**: use the appropriate artifact skill while preserving the same field semantics and source URLs.
 
-Use a filename such as `会议期刊信息_YYYY-MM-DD.ext`. Verify that the generated file exists and that every record has exactly 27 fields. For XLSX, visually inspect every sheet before delivery.
+Use a filename such as `会议期刊信息_YYYY-MM-DD.ext`. Verify that the generated file exists and that every record has exactly 28 fields. For XLSX, visually inspect every sheet before delivery.
 
 ## 5. Default chat output
 
@@ -71,7 +77,7 @@ When the user does not specify an output format, do not create a file. Return:
 
 1. a short Chinese summary of identity, scope, current cycle/status, and any unconfirmed item;
 2. source links placed next to the claims they support;
-3. a fenced `tsv` block containing the exact 27-column header and one row per venue.
+3. a fenced `tsv` block containing the exact 28-column header and one row per venue.
 
 The TSV block is the pasteable record. Use literal tab characters, one physical line per record, no tabs or newlines inside cells, and empty cells for unknown or inapplicable values. Tell the user to paste it into the first cell of the destination table. Do not replace the TSV with a Markdown pipe table.
 
@@ -79,7 +85,7 @@ Before delivery, check:
 
 - the venue identity is unambiguous;
 - all time-sensitive facts came from current official pages;
-- every row contains exactly 27 fields in the required order;
+- every row contains exactly 28 fields in the required order;
 - controlled fields use only allowed options;
 - dates and URLs use the required format;
 - unknown facts remain blank or explicitly unconfirmed;
